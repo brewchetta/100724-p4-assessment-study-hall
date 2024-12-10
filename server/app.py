@@ -13,7 +13,13 @@ def index():
 @app.get('/landlords')
 def get_all_landlords():
     all_landlords = Landlord.query.all()
-    landlord_dicts = [ landlord.to_dict() for landlord in all_landlords]
+
+    landlord_dicts = [ 
+        landlord.to_dict(rules=['-violations']) 
+        for landlord 
+        in all_landlords
+    ]
+
     return landlord_dicts, 200
     # return [ l.to_dict() for l in Landlord.query.all() ], 200
 
@@ -42,11 +48,7 @@ def create_new_landlord():
     try:
 
         # 2. create a new landlord instance using the parsed body
-        new_landlord = Landlord(
-            associated_llcs=body.get('associated_llcs'), 
-            violations=body.get('violations'), 
-            currently_in_litigation=body.get('currently_in_litigation')
-        )
+        new_landlord = Landlord( associated_llcs=body.get('associated_llcs') )
 
         # 3. add and commit the new landlord
         db.session.add( new_landlord )
