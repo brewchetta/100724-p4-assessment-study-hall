@@ -11,4 +11,11 @@ class Landlord(db.Model):
     associated_llcs = db.Column(db.String, nullable=False)
     violations = db.Column(db.String)
     currently_in_litigation = db.Column(db.Boolean, default=True)
-    
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "associated_llcs": self.associated_llcs,
+            "violations": self.violations,
+            "currently_in_litigation": self.currently_in_litigation
+        }
