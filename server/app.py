@@ -4,10 +4,13 @@ from flask import request
 from config import app, db
 from models import Landlord
 
-@app.get('/')
-def index():
-    return "Hello world"
+# HELPER FUNCTIONS
 
+def find_landlord_by_id(landlord_id):
+    return Landlord.query.where(Landlord.id == landlord_id).first()
+
+
+# ROUTES
 
 # GET REQUEST TO GET ALL LANDLORDS
 @app.get('/landlords')
@@ -28,7 +31,7 @@ def get_all_landlords():
 @app.get('/landlords/<int:landlord_id>')
 def get_landlord_by_id(landlord_id):
     # 1. find the landlord with that id
-    found_landlord = Landlord.query.where(Landlord.id == landlord_id).first()
+    found_landlord = find_landlord_by_id(landlord_id)
 
     if found_landlord:
         # 2. send it to the client if it exists (the client is whatever is making the request)
@@ -66,6 +69,18 @@ def create_new_landlord():
             "error_text": str(error)
         }, 400
 
+
+# DELETE REQUEST TO DELETE A LANDLORD
+@app.delete('/landlords/<int:landlord_id>')
+def delete_landlord_by_id(landlord_id):
+    found_landlord = find_landlord_by_id(landlord_id)
+
+    if found_landlord:
+        db.session.delete( found_landlord )
+        db.session.commit()
+        return {}, 204
+    else:
+        return { "status": 404, "message": "Not found" }, 404
 
 # RUN ##########################
 
