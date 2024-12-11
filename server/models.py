@@ -40,7 +40,7 @@ class Violation(db.Model, SerializerMixin):
         else:
             return "Not currently in litigation"
 
-    serialize_rules = ('-landlord.violations', '-tenant.violations')
+    serialize_rules = ('-landlord.violations', '-tenant.violations', 'litigation_for_violation')
 
 class Tenant(db.Model, SerializerMixin):
 
