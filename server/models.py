@@ -17,8 +17,6 @@ class Landlord(db.Model, SerializerMixin):
 
     tenants = association_proxy('violations', 'tenant')
 
-    # SerializerMixin creates a to_dict for us so we don't have to write it
-    # serialize_rules edits the to_dict to include or exclude certain items
     serialize_rules = ('-violations.landlord', 'tenants', '-tenants.landlords', '-tenants.violations',)
 
 class Violation(db.Model, SerializerMixin):
@@ -53,8 +51,6 @@ class Tenant(db.Model, SerializerMixin):
 
     violations = db.relationship('Violation', back_populates='tenant')
 
-    # 1st argument is how we get to the join table
-    # 2nd argument is how we get from the join table to the table on the other side
     landlords = association_proxy('violations','landlord')
 
     serialize_rules = ('-violations.tenant', 'landlords', '-landlords.tenants', '-landlords.violations',)
