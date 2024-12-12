@@ -12,12 +12,14 @@ class Landlord(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     associated_llcs = db.Column(db.String, nullable=False)
+    rating = db.Column(db.Integer)
 
     violations = db.relationship('Violation', back_populates='landlord', cascade='all, delete-orphan')
 
     tenants = association_proxy('violations', 'tenant')
 
     serialize_rules = ('-violations.landlord', 'tenants', '-tenants.landlords', '-tenants.violations',)
+
 
 class Violation(db.Model, SerializerMixin):
 

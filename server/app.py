@@ -70,6 +70,34 @@ def create_new_landlord():
         }, 400
 
 
+# PATCH REQUEST TO EDIT AN EXISTING LANDLORD
+@app.patch('/landlords/<int:landlord_id>')
+def edit_landlord(landlord_id):
+    found_landlord = find_landlord_by_id(landlord_id)
+
+    if found_landlord:
+        try:
+            data = request.json
+            # data --> { "associated_llcs": "Bob the Raccoon", "rating": 10 }
+
+            for key in data:
+                setattr(found_landlord, key, data[key])
+                # 1st argument is the object/instance we're changing
+                # 2nd argument is the name of attribute we're changing
+                # 3rd argument is the value we want to change it to
+
+            db.session.add( found_landlord )
+            db.session.commit()
+
+            return found_landlord.to_dict( rules=["-tenants"] ), 202
+
+        except:
+            return { "status": 400, "message": "That didn't work" }, 400
+
+    else:
+        return { "status": 404, "message": "Not found" }, 404
+
+
 # DELETE REQUEST TO DELETE A LANDLORD
 @app.delete('/landlords/<int:landlord_id>')
 def delete_landlord_by_id(landlord_id):
