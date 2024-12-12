@@ -51,7 +51,11 @@ def create_new_landlord():
     try:
 
         # 2. create a new landlord instance using the parsed body
-        new_landlord = Landlord( associated_llcs=body.get('associated_llcs') )
+        new_landlord = Landlord( 
+            associated_llcs=body.get('associated_llcs'), 
+            rating=body.get('rating'),
+            mgmt_company=body.get('mgmt_company') 
+        )
 
         # 3. add and commit the new landlord
         db.session.add( new_landlord )
@@ -61,6 +65,15 @@ def create_new_landlord():
         return new_landlord.to_dict(), 201
     
     # 5. return an error message for errors
+    except ValueError as validation_error:
+        # validation_error is the message we raised in the validation
+
+        return { 
+            "status": 400, 
+            "message": "Invalid data", 
+            "error_text": str(validation_error) 
+        }, 400
+
     except Exception as error:
 
         return {

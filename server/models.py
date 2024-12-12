@@ -1,6 +1,7 @@
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy_serializer import SerializerMixin
 from config import db
+from sqlalchemy.orm import validates
 
 
 # Landlord --< Violation >-- Tenant
@@ -12,13 +13,37 @@ class Landlord(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     associated_llcs = db.Column(db.String, nullable=False)
-    rating = db.Column(db.Integer)
+    rating = db.Column(db.Integer, default=1)
+    mgmt_company = db.Column(db.String(20))
 
     violations = db.relationship('Violation', back_populates='landlord', cascade='all, delete-orphan')
 
     tenants = association_proxy('violations', 'tenant')
 
     serialize_rules = ('-violations.landlord', 'tenants', '-tenants.landlords', '-tenants.violations',)
+
+    # VALIDATIONS
+
+    @validates('rating')
+    def validate_rating(self, key, new_value):
+        if type(new_value) != int:
+            raise ValueError('Landlord rating must be an integer')
+
+        if not 1 <= new_value <= 5:
+            raise ValueError('Landlord rating must be between 1 and 5 inclusive')
+
+        return new_value
+
+
+    @validates('associated_llcs')
+    def validate_llc(self, key, new_value):
+        if type(new_value) != str:
+            raise ValueError('Landlord associated_llcs must be a string')
+
+        if not "llc" in new_value.lower():
+            raise ValueError('LLC must be part of the name for associated_llcs')
+
+        return new_value
 
 
 class Violation(db.Model, SerializerMixin):
